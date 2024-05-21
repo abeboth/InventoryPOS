@@ -1,0 +1,11 @@
+<orders>
+    <order>
+        <id>1</id>
+        <date>2024-05-19</date>
+        <product_name>Mang Juan</product_name>
+        <order_qty>2</order_qty>
+        <order_amount>20.0</order_amount>
+        <bill_paid>20.0</bill_paid>
+        <balance>0.0</balance>
+    </order>
+</orders>

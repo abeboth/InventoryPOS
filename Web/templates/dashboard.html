@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1 align="center">Dashboard</h1>
+
+<div align="center">
+  <a href="{{ url_for('inventory') }}" class="btn btn-primary">Go to Inventory</a>
+</div>
+<br>
+  
+<div align="center">
+  <a href="{{ url_for('purchases') }}" class="btn btn-primary">Go to Purchases</a>
+</div>
+
+{% endblock %}

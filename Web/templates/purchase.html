@@ -1,0 +1,122 @@
+{% extends "index.html" %}
+
+{% block title %}Purchase Product - ShopON{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Purchase Orders</h1>
+    </section>
+    <section class="content">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Enter Purchase Order Details</h3>
+            </div>
+            <div class="box-body">
+                <form class="xml-form" action="{{ url_for('add_order') }}" method="POST">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required>
+                    
+                    <label for="productIdOrBarCode">Product ID or BarCode:</label>
+                    <input type="text" id="productIdOrBarCode" name="productIdOrBarCode" required>
+                    
+                    <label for="productName">Product Name:</label>
+                    <input type="text" id="productName" name="productName" readonly>
+                    
+                    <label for="orderQty">Order Quantity:</label>
+                    <input type="number" id="orderQty" name="orderQty" required>
+                    
+                    <label for="orderAmount">Order Amount:</label>
+                    <input type="text" id="orderAmount" name="orderAmount" readonly>
+                    
+                    <label for="billPaid">Bill Paid:</label>
+                    <input type="text" id="billPaid" name="billPaid" required>
+                    
+                    <label for="balance">Balance:</label>
+                    <input type="text" id="balance" name="balance" readonly>
+                    
+                    <button class="btn btn-info" type="submit">Add Purchase Order</button>
+                </form>
+            </div>
+        </div>
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Purchase Orders List</h3>
+            </div>
+            <div class="box-body">
+                <table id="POPRIndex" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Product Name</th>
+                            <th>Order Quantity</th>
+                            <th>Order Amount</th>
+                            <th>Bill Paid</th>
+                            <th>Balance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.date }}</td>
+                            <td>{{ order.product_name }}</td>
+                            <td>{{ order.order_qty }}</td>
+                            <td>{{ order.order_amount }}</td>
+                            <td>{{ order.bill_paid }}</td>
+                            <td>{{ order.balance }}</td>
+                            <td>
+                                <button class="btn btn-delete" onclick="deleteOrder('{{ order.id }}')">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+<script>
+    function deleteOrder(orderId) {
+        fetch('/delete_order/' + orderId)
+            .then(response => {
+                if (response.ok) {
+                    location.reload();  // Refresh the page after deletion
+                } else {
+                    alert('Error deleting order');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+<script>
+    document.getElementById('productIdOrBarCode').addEventListener('blur', function() {
+        var productIdOrBarCode = this.value;
+        fetch('/get_product_details/' + productIdOrBarCode)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById('productName').value = data.product_name;
+                    document.getElementById('orderAmount').value = 0;
+                    document.getElementById('balance').value = 0;
+                }
+            });
+    });
+
+    document.getElementById('orderQty').addEventListener('input', function() {
+        var orderQty = this.value;
+        var salePrice = parseFloat(document.getElementById('orderAmount').dataset.salePrice);
+        var orderAmount = orderQty * salePrice;
+        document.getElementById('orderAmount').value = orderAmount.toFixed(2);
+        document.getElementById('balance').value = (orderAmount - parseFloat(document.getElementById('billPaid').value)).toFixed(2);
+    });
+
+    document.getElementById('billPaid').addEventListener('input', function() {
+        var billPaid = this.value;
+        var orderAmount = parseFloat(document.getElementById('orderAmount').value);
+        document.getElementById('balance').value = (orderAmount - billPaid).toFixed(2);
+    });
+</script>
+{% endblock %}
